@@ -11,6 +11,7 @@ namespace Assets.Scripts.MemoTest
 
         private int m_cardsAmount = 6;
         private int m_columsAmount = 2;
+        private float m_cameraSize = 20f;
         public void StartGame()
         {
             for (int i = 0; i < menuObjects.Count; i++)
@@ -19,6 +20,7 @@ namespace Assets.Scripts.MemoTest
             }
 
             controller.StartGame(m_cardsAmount, m_columsAmount);
+            Camera.main.orthographicSize = m_cameraSize;
         }
 
 
@@ -31,5 +33,7 @@ namespace Assets.Scripts.MemoTest
         {
             m_columsAmount = p_columsAmount;
         }
+
+        public void ChangeCameraSize(float p_f) => m_cameraSize = p_f;
     }
 }
