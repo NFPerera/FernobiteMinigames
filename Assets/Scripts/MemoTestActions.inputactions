@@ -1,0 +1,54 @@
+{
+    "name": "MemoTestActions",
+    "maps": [
+        {
+            "name": "MemoTestMap",
+            "id": "2b96d60f-98ff-4464-9e89-efd8b9c3b3f1",
+            "actions": [
+                {
+                    "name": "OnTouchScreen",
+                    "type": "Value",
+                    "id": "8889c37a-0f3c-4963-98db-a3d02c43a2d7",
+                    "expectedControlType": "Touch",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "OnLeftClick",
+                    "type": "Button",
+                    "id": "825b4d3c-80c9-46eb-b84d-af905b6ee977",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "af934eb9-3d61-4451-ac41-b17826fe7f5b",
+                    "path": "<Touchscreen>/primaryTouch",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OnTouchScreen",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cad56956-431a-4b73-9ab4-deec5e7c2366",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OnLeftClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
