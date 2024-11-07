@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Assets.Scripts.MemoTest;
 using Extensions;
 using Extensions.IENumerableExtensions;
 using Extensions.InputSystem;
@@ -11,6 +12,7 @@ namespace MemoTest
 {
     public class MemoTestController : MonoBehaviour
     {
+        [SerializeField] private MenuController menuController;
         [Header("MemoTest")]
         [SerializeField] private MemoCard memoCardPrefab;
         [SerializeField] private List<Sprite> levelSprites = new List<Sprite>();
@@ -23,7 +25,6 @@ namespace MemoTest
         private bool m_isPlayingAnim;
         private int m_pairsLeft;
         private List<MemoCard> m_allCards = new List<MemoCard>();
-        private List<Vector3> m_allCardsPosition = new List<Vector3>();
         private SquareGrid m_grid;
         
         private Action<MemoCard> m_onCardSelected;
@@ -34,15 +35,24 @@ namespace MemoTest
             Create(p_totalCards, p_maxColumns);
             ShuffleCards();
             SubscribeInputs();
+            SubscribeEvents();
         }
 
         public void EndGame()
         {
+            UnsubscribeInputs();
+            UnSubscribeEvents();
 
+            m_isPlayingAnim =false;
+            m_pairsLeft = 0;
+            m_allCards.Clear();
+            m_grid = null;
         }
+
         private void OnDisable()
         {
             UnsubscribeInputs();
+            UnSubscribeEvents();
         }
 
         private void SubscribeInputs()
@@ -50,12 +60,6 @@ namespace MemoTest
             var l_ins = ExtensionsInputManager.Instance;
             l_ins.SubscribeInput("OnTouchScreen", OnTouchScreenPerformed );
             l_ins.SubscribeInput("OnLeftClick", OnLeftClickPerformed);
-            m_onCardSelected += OnSelectedCard;
-
-
-
-            m_onMatchCards += AddPoints;
-            m_onMatchCards += CheckWinCondition;
         }
 
         private void UnsubscribeInputs()
@@ -63,11 +67,21 @@ namespace MemoTest
             var l_ins = ExtensionsInputManager.Instance;
             l_ins.UnsubscribeInput("OnTouchScreen", OnTouchScreenPerformed );
             l_ins.UnsubscribeInput("OnLeftClick", OnLeftClickPerformed);
-            m_onCardSelected -= OnSelectedCard;
-            m_onMatchCards -= AddPoints;
-            m_onMatchCards -= CheckWinCondition;
         }
 
+        private void SubscribeEvents()
+        {
+            m_onMatchCards += MatchCardsParticles;
+            m_onMatchCards += CheckWinCondition;
+            m_onCardSelected += OnSelectedCard;
+        }
+
+        private void UnSubscribeEvents()
+        {
+            m_onMatchCards -= MatchCardsParticles;
+            m_onMatchCards -= CheckWinCondition;
+            m_onCardSelected -= OnSelectedCard;
+        }
 
         private void Update()
         {
@@ -85,6 +99,8 @@ namespace MemoTest
                     m_cardOne.Expand();
                     Destroy(m_cardTwo.gameObject);
                     m_isPlayingAnim = false;
+                    SubscribeInputs();
+                    m_onMatchCards.Invoke();
                 }
             }
         }
@@ -131,9 +147,11 @@ namespace MemoTest
             if (m_selectedCard.CardId == p_card.CardId) //Esto significa que las cartas son las mismas
             {
                 //Agregar los puntos que sean necesarios
+                m_pairsLeft--;
                 AnimCards(m_selectedCard, p_card);
                 m_selectedCard = default;
-                m_onMatchCards.Invoke();
+                
+                
             }
             else
             {
@@ -165,21 +183,24 @@ namespace MemoTest
             m_cardTwo.GetRenderer().sortingOrder = 10;
             m_middlePoint = (p_cardTwo.transform.position + p_carOne.transform.position)/2;
             m_isPlayingAnim = true;
+            UnsubscribeInputs();
         }
 
-        private void AddPoints()
+        private void MatchCardsParticles()
         {
 
-            m_pairsLeft--;
         }
 
         private void CheckWinCondition()
         {
-            
-            if(m_pairsLeft <= 0)
-                Debug.Log("YOU WIN");
-            
-            
+            Debug.Log(m_pairsLeft);
+            if(m_pairsLeft > 0)
+                return;
+
+            Debug.Log("YOU WIN");
+            menuController.ShowWinAnim();
+            EndGame();
+
         }
 
         [ContextMenu("Shuffle")]
@@ -195,12 +216,12 @@ namespace MemoTest
         [ContextMenu("Create")]
         private void Create(int p_totalCards, int p_maxColums)
         {
-            var p_pairsAmount = p_totalCards / 2;
+            m_pairsLeft = p_totalCards / 2;
             m_allCards = new List<MemoCard>();
             var l_currentRows = Mathf.CeilToInt(p_totalCards / p_maxColums); //Veo cuantas filas necesito y las redondeo hacia arriba
 
 
-            for (int l_i = 0; l_i < p_pairsAmount; l_i++)
+            for (int l_i = 0; l_i < m_pairsLeft; l_i++)
             {
                 var l_card1 = Instantiate(memoCardPrefab);
                 l_card1.Initialize(levelSprites[l_i], l_i); // Inicializa la carta con el sprite
@@ -227,7 +248,7 @@ namespace MemoTest
                 m_allCards[l_i].HideCard();
             }
 
-            m_pairsLeft = levelSprites.Count;
+            
         }
     }
 }
