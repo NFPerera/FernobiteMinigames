@@ -20,7 +20,14 @@ namespace MemoTest
         [SerializeField] private LayerMask cardLayerMask;
         [Header("Grid")] 
         [SerializeField] private Vector2 gridCenterPos;
-
+        [Header("Sounds")] 
+        [SerializeField] private AudioSource audioSource;
+        [SerializeField] private AudioClip touchSound;
+        [SerializeField] private AudioClip matchSound;
+        [SerializeField] private AudioClip winSound;
+        [Header("Particles")]
+        [SerializeField] private ParticleSystem matchParticles;
+        [SerializeField] private ParticleSystem winParticles;
 
         private bool m_isPlayingAnim;
         private int m_pairsLeft;
@@ -138,6 +145,7 @@ namespace MemoTest
         private MemoCard m_selectedCard = default;
         private void OnSelectedCard(MemoCard p_card)
         {
+            audioSource.PlayOneShot(touchSound);
             if (m_selectedCard == default)
             {
                 m_selectedCard = p_card;
@@ -188,7 +196,7 @@ namespace MemoTest
 
         private void MatchCardsParticles()
         {
-
+            audioSource.PlayOneShot(matchSound);
         }
 
         private void CheckWinCondition()
@@ -196,6 +204,8 @@ namespace MemoTest
             Debug.Log(m_pairsLeft);
             if(m_pairsLeft > 0)
                 return;
+
+            audioSource.PlayOneShot(winSound);
 
             Debug.Log("YOU WIN");
             menuController.ShowWinAnim();
